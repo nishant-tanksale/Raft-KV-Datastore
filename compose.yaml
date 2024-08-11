@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  node1:
+    build: .
+    container_name: raft_node1
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/node1:/app/data/rocksdb_node1
+    environment:
+      - PEER_ID=node1
+      - PEER_PORT=8080
+      - PEER_DATA_DIR=/app/data/rocksdb_node1
+      - PEER_2_ID=node2
+      - PEER_2_PORT=8081
+      - PEER_3_ID=node3
+      - PEER_3_PORT=8082
+
+  node2:
+    build: .
+    container_name: raft_node2
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./data/node2:/app/data/rocksdb_node2
+    environment:
+      - PEER_ID=node2
+      - PEER_PORT=8081
+      - PEER_DATA_DIR=/app/data/rocksdb_node2
+      - PEER_1_ID=node1
+      - PEER_1_PORT=8080
+      - PEER_3_ID=node3
+      - PEER_3_PORT=8082
+
+  node3:
+    build: .
+    container_name: raft_node3
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./data/node3:/app/data/rocksdb_node3
+    environment:
+      - PEER_ID=node3
+      - PEER_PORT=8082
+      - PEER_DATA_DIR=/app/data/rocksdb_node3
+      - PEER_1_ID=node1
+      - PEER_1_PORT=8080
+      - PEER_2_ID=node2
+      - PEER_2_PORT=8081

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package kvstore;
+
+message KVStoreRequestProto {
+  oneof request {
+    WriteRequestProto write = 1;
+    WriteRequestHeaderProto writeHeader = 2;
+    ReadRequestProto read = 3;
+    DeleteRequestProto delete = 4;
+  }
+}
+
+message WriteRequestProto {
+  WriteRequestHeaderProto header = 1;
+  bytes data = 2;
+}
+
+message WriteRequestHeaderProto {
+  string key = 1;
+  bool close = 2;
+}
+
+message ReadRequestProto {
+  string key = 1;
+}
+
+message DeleteRequestProto {
+  string key = 1;
+}
+
+message DeleteReplyProto {
+  string resolvedPath = 1;
+}
