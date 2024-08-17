@@ -8,7 +8,6 @@ import org.apache.ratis.protocol.RaftPeerId;
 import org.apache.ratis.server.RaftServer;
 import org.apache.ratis.statemachine.StateMachine;
 import org.apache.ratis.util.NetUtils;
-import org.apache.ratis.statemachine.StateMachine;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,26 +16,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         // Create Raft properties
         RaftProperties properties = new RaftProperties();
-        Logger.getLogger("org.apache.ratis").setLevel(Level.ERROR);
-        Logger.getLogger("org.apache.ratis.server.impl").setLevel(Level.ERROR);
-        Logger.getLogger("org.apache.ratis.client.impl").setLevel(Level.ERROR);
-        Logger.getLogger("org.apache.ratis.protocol").setLevel(Level.ERROR);
-        Logger.getLogger("org.apache.ratis.util").setLevel(Level.ERROR);
 
         // Create a Raft group with three nodes
         String peerIdStr = System.getenv("PEER_ID");
         String peerPortStr = System.getenv("PEER_PORT");
         String dataDir = System.getenv("PEER_DATA_DIR");
-
-        // Create Raft properties
-        Logger.getLogger("org.apache.ratis").setLevel(Level.ERROR);
 
         // Define the Raft peers
         List<RaftPeer> peers = new ArrayList<>();
@@ -62,9 +51,10 @@ public class Main {
             }
         }
 
-        // Create a Raft group with all the peers
-        RaftGroupId groupId = RaftGroupId.valueOf(UUID.randomUUID());
+        // Use a consistent RaftGroupId across all nodes
+        RaftGroupId groupId = RaftGroupId.valueOf(UUID.nameUUIDFromBytes("consistent-raft-group".getBytes()));
         RaftGroup raftGroup = RaftGroup.valueOf(groupId, peers);
+
         startRaftServer(peerId, raftGroup, properties, dataDir);
     }
 
@@ -98,5 +88,10 @@ public class Main {
         }));
 
         System.out.println("Raft server started for peer: " + peerId + " on " + raftGroup.getPeer(peerId).getAddress());
+        System.out.println("RaftGroupId: " + raftGroup.getGroupId());
+        System.out.println("Raft cluster configuration:");
+        for (RaftPeer peer : raftGroup.getPeers()) {
+            System.out.println("Peer ID: " + peer.getId() + ", Address: " + peer.getAddress());
+        }
     }
 }
